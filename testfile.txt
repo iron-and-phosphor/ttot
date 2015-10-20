@@ -1,29 +1,21 @@
-/|atb|[t1]{test1
-test2
-test3
-bla}
+/|atb|[tt]{0}
+/|atb|[t2]{1}
+/|atb|[lim]{500}
 
-/|atb|[g]{15 - 5}
+/#loop1#\
 
-/|atb|[t2]{bla1
-bla2
-bla3
-test}
-
-/|atb|[t3]{
-het werkt1
-het werkt2{{{{}}}}
-het werkt3 
-Yes
+/|print|[tt]{
 }
 
-/|atb|[l1](true & 6=6){  }(5<6 & 6+2<7+2 & true)
+/|atb|[t2](tt+t2)
 
-/|atb|[m1](5+2-3+6-15+g)
+/|print|[t2]{
+}
 
-/|atb|[bla][t1]{
-}[t2][t3][m1]
+/|atb|[tt](tt+t2)
 
-/|print|[bla]{
-dit is het einde van het programma
-}[l1]
+/|print|{loop1}(tt <lim & t2 < lim ){
+}
+
+/|jmp|{loop1}(tt<lim&t2<lim)
+

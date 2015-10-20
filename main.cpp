@@ -108,15 +108,15 @@ string math_less_equal_greater(string input){
 	size_t loc = input.find_last_of("<=>");
 	if(input[loc]=='<'||input[loc]=='='||input[loc]=='>'){
 		if(input[loc]=='='){
-			if(math_pars(input.substr(0,loc))==math_pars(input.substr(loc+1))) return "true";
+			if(stoi(math_pars(input.substr(0,loc)))==stoi(math_pars(input.substr(loc+1)))) return "true";
 			else return "false";
 		}
 		if(input[loc]=='<'){
-			if(math_pars(input.substr(0,loc))<math_pars(input.substr(loc+1))) return "true";
+			if(stoi(math_pars(input.substr(0,loc)))<stoi(math_pars(input.substr(loc+1)))) return "true";
 			else return "false";
 		}
 		if(input[loc]=='>'){
-			if(math_pars(input.substr(0,loc))>math_pars(input.substr(loc+1))) return "true";
+			if(stoi(math_pars(input.substr(0,loc)))>stoi(math_pars(input.substr(loc+1)))) return "true";
 			else return "false";
 		}
 	} else return math_add_sub(input);
@@ -179,11 +179,21 @@ size_t command_print(string buffer_name, size_t loc){
 	cout << strip_to_string(buffer_name,loc);
 	return loc;
 }
+size_t command_jmp(string buffer_name, size_t loc){
+	string strip = strip_to_string(buffer_name,loc);
+	size_t pos = strip.find("true");
+	if(pos!=string::npos){
+		string label = strip.substr(0,pos);
+		return global_map[buffer_name].find("/#"+label+"#\\");
+	}
+	return loc;
+}
 
 size_t flush_buffer(string buffer_name, size_t loc){
 	string command = st_from_between_st(buffer_name,"/|","|",loc);
 	if(command == "print") loc = command_print(buffer_name,loc);
 	else if(command == "atb") loc = command_atb(buffer_name,loc);
+	else if(command == "jmp") loc = command_jmp(buffer_name,loc);
 	else {cout << "invalid command '" << command << "' " << loc_to_pos(buffer_name,loc-command.size()) << endl;}
 	
 	if(global_map[buffer_name].find("/|",loc) != string::npos) 
