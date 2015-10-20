@@ -82,48 +82,68 @@ string st_from_between_st(string buffer_name, string open_str, string close_str,
 	return res; // return res... yep.
 }
 
-int math_to_int(string input){
-	size_t textb = input.find_first_not_of(" ");
-	size_t texte = input.find_last_not_of(" ")+1;
-	size_t begin = input.find_first_of("0123456789");
-	size_t end = input.find_first_not_of("0123456789"); 
-	if(textb == begin) return stoi(input.substr(begin,end-begin));
-	else return math_to_int(math_to_string(global_map[input.substr(textb,texte-textb)]));
-}
-
-int math_operator_split(string input){
-	size_t loc = input.find_last_of("+-");
-	if(loc!=string::npos){
-		int l = math_operator_split(input.substr(0,loc));
-		int r = math_operator_split(input.substr(loc+1));
-		if(input[loc]=='+') return l+r;
-		else return l-r;
-	} else return math_to_int(input);
-}
-
-string math_to_string(string input){
-	size_t loc = input.find_first_of("+-");
-	if(loc!=string::npos){
-		return to_string(math_operator_split(input));
-	}
-	return to_string(math_to_int(input));
-}
-
 string math_clip(string input){
 	size_t textb = input.find_first_not_of(" ");
 	size_t texte = input.find_last_not_of(" ")+1;
 	size_t begin = input.find_first_of("0123456789");
 	size_t end = input.find_first_not_of("0123456789"); 
 	if(textb == begin) return input.substr(begin,end-begin);
+	else if(input.substr(textb,texte-textb)=="true")  return "true";  
+	else if(input.substr(textb,texte-textb)=="false") return "false";  
 	else return math_clip(math_pars(global_map[input.substr(textb,texte-textb)]));
 }
+
+string math_add_sub(string input){
+	size_t loc = input.find_last_of("+-");
+	if(input[loc]=='+'||input[loc]=='-'){
+		if(input[loc]=='+') 
+			return to_string(stoi(math_pars(input.substr(0,loc))) + stoi(math_pars(input.substr(loc+1))));
+		if(input[loc]=='-') 
+			return to_string(stoi(math_pars(input.substr(0,loc))) - stoi(math_pars(input.substr(loc+1))));
+	} else {cout << "could not find operator:" << input[loc] << endl; exit(-1);}
+	return "";
+}
+
+string math_less_equal_greater(string input){
+	size_t loc = input.find_last_of("<=>");
+	if(input[loc]=='<'||input[loc]=='='||input[loc]=='>'){
+		if(input[loc]=='='){
+			if(math_pars(input.substr(0,loc))==math_pars(input.substr(loc+1))) return "true";
+			else return "false";
+		}
+		if(input[loc]=='<'){
+			if(math_pars(input.substr(0,loc))<math_pars(input.substr(loc+1))) return "true";
+			else return "false";
+		}
+		if(input[loc]=='>'){
+			if(math_pars(input.substr(0,loc))>math_pars(input.substr(loc+1))) return "true";
+			else return "false";
+		}
+	} else return math_add_sub(input);
+	return "";
+}
+
+string math_and_or(string input){
+	size_t loc = input.find_last_of("&|");
+	if(input[loc]=='&'||input[loc]=='|'){
+		if(input[loc]=='&'){
+			if(math_pars(input.substr(0,loc))=="true"&&math_pars(input.substr(loc+1))=="true") 
+				return "true"; 
+			else return "false";
+		}
+		if(input[loc]=='|'){
+			if(math_pars(input.substr(0,loc))=="true"||math_pars(input.substr(loc+1))=="true") 
+				return "true"; 
+			else return "false";
+		}
+	} else return math_less_equal_greater(input);
+	return "";
+}
+
 string math_pars(string input){
-	size_t loc = input.find_first_of("&|+-");
+	size_t loc = input.find_last_of("&|<=>+-");
 	if(loc!=string::npos){
-		if(input[loc]=='&');
-		if(input[loc]=='|');
-		if(input[loc]=='+');
-		if(input[loc]=='-');
+		return math_and_or(input);
 	} return math_clip(input);
 }
 
@@ -142,7 +162,7 @@ string strip_to_string(string buffer_name, size_t &loc){
 	if(begin<end){
 		string label = st_from_between_st(buffer_name,string(1,buf[begin]),get_other_bracket(buf[begin]),loc);
 		if(buf[begin]=='[') return global_map[label] += strip_to_string(buffer_name,loc);
-		else if(buf[begin]=='(') return math_to_string(label) += strip_to_string(buffer_name,loc);
+		else if(buf[begin]=='(') return math_pars(label) += strip_to_string(buffer_name,loc);
 		else return label += strip_to_string(buffer_name,loc);
 	}
 	loc = buf.find("\n",loc);
