@@ -8,6 +8,9 @@
 using namespace std;
 
 map<string,string> global_map;
+string math_to_string(string);
+string math_pars(string);
+
 // file to string does exactly that... yeah
 string file_to_string(string filename){
 	ifstream infile(filename.c_str());
@@ -57,23 +60,37 @@ void test_st_between_st(string buffer_name, string open_str, string close_str, s
 		exit(-1);
 	}
 }
+size_t find_last_bracket(string buffer_name, string open_str, string close_str, size_t loc, size_t last, bool rec){
+	string buf = global_map[buffer_name];
+	size_t begin = buf.find(open_str,loc)+open_str.size();
+	size_t mid = buf.find(open_str,begin);
+	size_t end;
+	if(rec){end = buf.find(close_str,last);}
+	else end = buf.find(close_str,begin);
+	if(mid!=string::npos&&mid<end) 
+		return find_last_bracket(buffer_name,open_str,close_str,mid,end+1,true);
+	return end;
+}
 // collect a string from between two other strings
 string st_from_between_st(string buffer_name, string open_str, string close_str, size_t &loc){
 	test_st_between_st(buffer_name,open_str,close_str,loc);  // test if the syntax is correct
 	string buf = global_map[buffer_name]; //put global buffer in local buffer
+	size_t nb = find_last_bracket(buffer_name,open_str,close_str,loc,loc,false);
 	loc = buf.find(open_str,loc)+open_str.size(); //find open_str location 
-	size_t nb = buf.find(close_str,loc); // find next location
 	string res = buf.substr(loc,nb-loc); // collect string between locations
 	loc = nb + close_str.size(); // set location to the end of the close_str location
 	return res; // return res... yep.
 }
 
 int math_to_int(string input){
+	size_t textb = input.find_first_not_of(" ");
+	size_t texte = input.find_last_not_of(" ")+1;
 	size_t begin = input.find_first_of("0123456789");
-	size_t end = input.find_first_not_of("0123456789");
-	return stoi(input.substr(begin,end-begin));
-
+	size_t end = input.find_first_not_of("0123456789"); 
+	if(textb == begin) return stoi(input.substr(begin,end-begin));
+	else return math_to_int(math_to_string(global_map[input.substr(textb,texte-textb)]));
 }
+
 int math_operator_split(string input){
 	size_t loc = input.find_last_of("+-");
 	if(loc!=string::npos){
@@ -91,6 +108,25 @@ string math_to_string(string input){
 	}
 	return to_string(math_to_int(input));
 }
+
+string math_clip(string input){
+	size_t textb = input.find_first_not_of(" ");
+	size_t texte = input.find_last_not_of(" ")+1;
+	size_t begin = input.find_first_of("0123456789");
+	size_t end = input.find_first_not_of("0123456789"); 
+	if(textb == begin) return input.substr(begin,end-begin);
+	else return math_clip(math_pars(global_map[input.substr(textb,texte-textb)]));
+}
+string math_pars(string input){
+	size_t loc = input.find_first_of("&|+-");
+	if(loc!=string::npos){
+		if(input[loc]=='&');
+		if(input[loc]=='|');
+		if(input[loc]=='+');
+		if(input[loc]=='-');
+	} return math_clip(input);
+}
+
 // turns open bracket into a closed bracket
 string get_other_bracket(char ch){
 	if(ch=='{')return "}";

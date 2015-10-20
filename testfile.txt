@@ -3,6 +3,8 @@ test2
 test3
 bla}
 
+/|atb|[g]{15 - 5}
+
 /|atb|[t2]{bla1
 bla2
 bla3
@@ -10,12 +12,12 @@ test}
 
 /|atb|[t3]{
 het werkt1
-het werkt2
+het werkt2{{{{}}}}
 het werkt3 
 Yes
 }
 
-/|atb|[m1](5+2-3+6-15)
+/|atb|[m1](5+2-3+6-15+g)
 
 /|atb|[bla][t1]{
 }[t2][t3][m1]
