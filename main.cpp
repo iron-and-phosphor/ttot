@@ -86,7 +86,7 @@ string math_clip(string input){
 	size_t textb = input.find_first_not_of(" ");
 	size_t texte = input.find_last_not_of(" ")+1;
 	size_t begin = input.find_first_of("0123456789");
-	size_t end = input.find_first_not_of("0123456789"); 
+	size_t end = input.find_last_of("0123456789")+1;
 	if(textb == begin) return input.substr(begin,end-begin);
 	else if(input.substr(textb,texte-textb)=="true")  return "true";  
 	else if(input.substr(textb,texte-textb)=="false") return "false";  
@@ -158,12 +158,14 @@ string get_other_bracket(char ch){
 string strip_to_string(string buffer_name, size_t &loc){
 	string buf = global_map[buffer_name];
 	size_t begin = buf.find_first_of("[{(",loc);
-	size_t end = buf.find("\n",loc);
+	size_t end = buf.find("\\\n",loc);
+	string special_char = "";
 	if(begin<end){
 		string label = st_from_between_st(buffer_name,string(1,buf[begin]),get_other_bracket(buf[begin]),loc);
-		if(buf[begin]=='[') return global_map[label] += strip_to_string(buffer_name,loc);
-		else if(buf[begin]=='(') return math_pars(label) += strip_to_string(buffer_name,loc);
-		else return label += strip_to_string(buffer_name,loc);
+		if(buf.at(loc)=='n') special_char = "\n";
+		if(buf[begin]=='[') return global_map[label] += special_char + strip_to_string(buffer_name,loc);
+		else if(buf[begin]=='(') return math_pars(label) += special_char + strip_to_string(buffer_name,loc);
+		else return label += special_char + strip_to_string(buffer_name,loc);
 	}
 	loc = buf.find("\n",loc);
 	return "";

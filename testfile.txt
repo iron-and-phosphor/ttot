@@ -1,21 +1,16 @@
-/|atb|[tt]{0}
-/|atb|[t2]{1}
-/|atb|[lim]{500}
+/|atb|[t1]{0}\
+/|atb|[t2]{1}\
+/|atb|[lim]{500}\
 
 /#loop1#\
 
-/|print|[tt]{
-}
+/|print|[t1]n\
 
-/|atb|[t2](tt+t2)
+/|atb|[t2](t1+t2)\
 
-/|print|[t2]{
-}
+/|print|[t2]n\
 
-/|atb|[tt](tt+t2)
+/|atb|[t1](t1+t2)\
 
-/|print|{loop1}(tt <lim & t2 < lim ){
-}
-
-/|jmp|{loop1}(tt<lim&t2<lim)
+/|jmp|{loop1}(t1<lim&t2<lim)\
 
